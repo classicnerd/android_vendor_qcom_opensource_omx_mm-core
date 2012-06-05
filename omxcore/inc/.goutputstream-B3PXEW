@@ -1,0 +1,135 @@
+/*--------------------------------------------------------------------------
+Copyright (c) 2009-2011, Code Aurora Forum. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Code Aurora nor
+      the names of its contributors may be used to endorse or promote
+      products derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--------------------------------------------------------------------------*/
+#ifndef __OMX_QCOM_EXTENSIONS_H__
+#define __OMX_QCOM_EXTENSIONS_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/*============================================================================
+*//** @file OMX_QCOMExtns.h
+  This header contains constants and type definitions that specify the
+  extensions added to the OpenMAX Vendor specific APIs.
+
+*//*========================================================================*/
+
+
+//////////////////////////////////////////////////////////////////////////////
+//                             Include Files
+//////////////////////////////////////////////////////////////////////////////
+#include "OMX_Core.h"
+#include "OMX_Video.h"
+
+/**
+ * This extension is used to register mapping of a virtual
+ * address to a physical address. This extension is a parameter
+ * which can be set using the OMX_SetParameter macro. The data
+ * pointer corresponding to this extension is
+ * OMX_QCOM_MemMapEntry. This parameter is a 'write only'
+ * parameter (Current value cannot be queried using
+ * OMX_GetParameter macro).
+ */
+#define OMX_QCOM_EXTN_REGISTER_MMAP     "OMX.QCOM.index.param.register_mmap"
+
+/**
+ * This structure describes the data pointer corresponding to
+ * the OMX_QCOM_MMAP_REGISTER_EXTN extension. This parameter
+ * must be set only 'after' populating a port with a buffer
+ * using OMX_UseBuffer, wherein the data pointer of the buffer
+ * corresponds to the virtual address as specified in this
+ * structure.
+ */
+struct OMX_QCOM_PARAM_MEMMAPENTRYTYPE
+{
+    OMX_U32 nSize;              /** Size of the structure in bytes */
+    OMX_VERSIONTYPE nVersion;   /**< OMX specification version information */
+    OMX_U32 nPortIndex;         /**< Port number the structure applies to */
+
+    /**
+     * The virtual address of memory block
+     */
+    OMX_U64 nVirtualAddress;
+
+    /**
+     * The physical address corresponding to the virtual address. The physical
+     * address is contiguous for the entire valid range of the virtual
+     * address.
+     */
+    OMX_U64 nPhysicalAddress;
+};
+
+#define QOMX_VIDEO_IntraRefreshRandom (OMX_VIDEO_IntraRefreshVendorStartUnused + 0)
+
+#define QOMX_VIDEO_BUFFERFLAG_BFRAME 0x00100000
+
+#define QOMX_VIDEO_BUFFERFLAG_EOSEQ  0x00200000
+
+#define OMX_QCOM_PORTDEFN_EXTN   "OMX.QCOM.index.param.portdefn"
+/* Allowed APIs on the above Index: OMX_GetParameter() and OMX_SetParameter() */
+
+typedef enum OMX_QCOMMemoryRegion
+{
+    OMX_QCOM_MemRegionInvalid,
+    OMX_QCOM_MemRegionEBI1,
+    OMX_QCOM_MemRegionSMI,
+    OMX_QCOM_MemRegionMax = 0X7FFFFFFF
+} OMX_QCOMMemoryRegion;
+
+typedef enum OMX_QCOMCacheAttr
+{
+    OMX_QCOM_CacheAttrNone,
+    OMX_QCOM_CacheAttrWriteBack,
+    OMX_QCOM_CacheAttrWriteThrough,
+    OMX_QCOM_CacheAttrMAX = 0X7FFFFFFF
+} OMX_QCOMCacheAttr;
+
+typedef struct OMX_QCOMRectangle
+{
+   OMX_S32 x;
+   OMX_S32 y;
+   OMX_S32 dx;
+   OMX_S32 dy;
+} OMX_QCOMRectangle;
+
+/** OMX_QCOMFramePackingFormat
+  * Input or output buffer format
+  */
+typedef enum OMX_QCOMFramePackingFormat
+{
+  /* 0 - unspecified
+   */
+  OMX_QCOM_FramePacking_Unspecified,
+
+  /*  1 - Partial frames may be present OMX IL 1.1.1 Figure 2-10:
+   *  Case 1??Each Buffer Filled In Whole or In Part
+   */
+  OMX_QCOM_FramePacking_Arbitrary,
+
+  /*  2 - Multiple complete frames per buffer (integer number)
+   *  OMX IL 1.1.1 Figure 2-11: Case 2
